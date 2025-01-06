@@ -1,18 +1,20 @@
-.PHONY: all clean create query
+.PHONY: all clean create query check-uv check-duckdb
 
-# Default target runs the full sequence
 all: clean create query
 
-# Remove the warehouse directory
 clean:
 	rm -rf warehouse
 
-# Create and populate the Iceberg table
-create: clean
+check-uv:
+	@command -v uv >/dev/null 2>&1 || (echo "Error: uv is not installed: brew install uv" && exit 1)
+
+check-duckdb:
+	@command -v duckdb >/dev/null 2>&1 || (echo "Error: duckdb is not installed: brew install duckdb" && exit 1)
+
+create: check-uv clean
 	./create_table.py
 
-# Query the table using both SQL and Python
-query:
+query: check-uv check-duckdb
 	@echo "\nRunning SQL query:"
 	./query.sql
 	@echo "\nRunning Python query:"
